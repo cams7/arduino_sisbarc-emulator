@@ -8,23 +8,20 @@
 
 #include "Node.h"
 #include <stdlib.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 namespace SISBARC {
 
 	template<typename T>
 	Node<T>::Node(T* const element) :
 	_element(element), _next(NULL), _previous(NULL) {
-		printf("New Node\n");
+		//printf("New Node\n");
 	}
 
 	template<typename T>
 	Node<T>::~Node() {
-		/*for (uint8_t i = 0x00; i < 8; i++) {
-		 printf("%i ", ((uint16_t*)_element)[i]);
-		 }*/
 		delete _element;
-		printf("Delete Node\n");
+		//printf("Delete Node\n");
 	}
 
 	template<typename T>

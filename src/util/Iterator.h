@@ -31,7 +31,7 @@ protected:
 
 	uint16_t size;
 
-	void add(T* const); // add element
+	void push(T* const); // add element
 public:
 	bool isEmpty() const;  // return true if empty.
 

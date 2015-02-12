@@ -10,14 +10,14 @@
 #include "Iterator.h"
 
 #include <stdlib.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 namespace SISBARC {
 
 	template<typename T>
 	Iterator<T>::Iterator() :
 	_root(NULL),_current(NULL),_next(NULL),_hasNext(false),_nextChanged(false),size(0x0000) {
-		printf("New Iterator\n");
+		//printf("New Iterator\n");
 	}
 
 	template<typename T>
@@ -28,7 +28,7 @@ namespace SISBARC {
 				i->remove();
 			}
 		}
-		printf("Delete Iterator\n");
+		//printf("Delete Iterator\n");
 	}
 
 	template<typename T>
@@ -50,7 +50,7 @@ namespace SISBARC {
 	}
 
 	template<typename T>
-	void Iterator<T>::add(T* const element) {
+	void Iterator<T>::push(T* const element) {
 		if (!isEmpty()) {
 			Node<T>* previous;
 			Node<T>* next;

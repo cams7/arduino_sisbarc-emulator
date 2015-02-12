@@ -1,0 +1,326 @@
+//============================================================================
+// Name        : sisbarc-app.cpp
+// Author      : Cesar Magalhaes
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "ArduinoEEPROM.h"
+#include "ArduinoUSART.h"
+#include "SisbarcEEPROM.h"
+#include "SisbarcProtocol.h"
+#include "SisbarcUSART.h"
+
+using namespace SISBARC;
+
+bool printArduinoUSART(ArduinoStatus* arduino);
+bool printArduinoEEPROM(ArduinoStatus* arduino);
+
+int main() {
+	/*
+	 SisbarcEEPROM::cleanAll();
+
+	 const uint16_t TOTAL_RECORDS = 80; //Max records = 80;
+
+	 pin_type pinType = ArduinoStatus::DIGITAL;
+	 uint8_t pin = 0;
+
+	 uint8_t digitalPinValue = 3;
+	 uint16_t analogPinValue = 63;
+
+	 uint8_t threadTime = 0;
+
+	 uint8_t digitalActionEvent = 0;
+	 uint8_t analogActionEvent = 7;
+
+	 uint8_t countStatus = 0;
+
+	 status statusValue;
+	 event eventValueUSART;
+	 event eventValueEEPROM; //= ArduinoEEPROM::WRITE;
+
+	 uint16_t pinValue;
+
+	 uint8_t actionEvent;
+
+	 //Grava 80 registros
+	 for (uint16_t i = 0x0000; i < TOTAL_RECORDS; i++) {
+
+	 if (countStatus == 0)
+	 statusValue = ArduinoStatus::SEND;
+	 else if (countStatus == 1)
+	 statusValue = ArduinoStatus::SEND_RESPONSE;
+	 else if (countStatus == 2)
+	 statusValue = ArduinoStatus::RESPONSE;
+	 else
+	 statusValue = ArduinoStatus::RESPONSE_RESPONSE;
+
+	 if ((i + 1) % 2 == 0) {
+	 eventValueUSART = ArduinoUSART::MESSAGE;
+	 eventValueEEPROM = ArduinoEEPROM::READ;
+	 } else {
+	 eventValueUSART = ArduinoUSART::EXECUTE;
+	 eventValueEEPROM = ArduinoEEPROM::WRITE;
+	 }
+
+	 if (pinType == ArduinoStatus::DIGITAL) {
+	 //actionEvent = pin == 0x00 ? digitalActionEvent + 1 : digitalActionEvent;
+	 pinValue = digitalPinValue;
+	 actionEvent = digitalActionEvent;
+	 } else {
+	 pinValue = analogPinValue;
+	 actionEvent = analogActionEvent;
+	 }
+
+	 uint8_t* bytes;
+	 ArduinoStatus* arduino;
+
+	 bytes = SisbarcProtocol::sendUSART(statusValue, eventValueUSART,
+	 pinType, pin, pinValue);
+
+	 if (bytes != NULL) {
+	 arduino = SisbarcProtocol::receive(bytes);
+	 if (arduino != NULL) {
+
+	 if ((arduino->getTransmitterValue() == ArduinoStatus::ARDUINO
+	 && statusValue == arduino->getStatusValue()
+	 && eventValueUSART == arduino->getEventValue()
+	 && pinType == arduino->getPinType()
+	 && pin == arduino->getPin()
+	 && (arduino->getEventValue() == ArduinoStatus::EXECUTE
+	 || arduino->getEventValue()
+	 == ArduinoStatus::MESSAGE)
+	 && pinValue == ((ArduinoUSART*) arduino)->getPinValue()))
+	 printf(
+	 "transmitter: %u, status: %u, event: %u, pinType: %s, pin: %u, pinValue: %u\n",
+	 arduino->getTransmitterValue(),
+	 arduino->getStatusValue(), arduino->getEventValue(),
+	 (arduino->getPinType() == ArduinoStatus::DIGITAL ?
+	 "DIGITAL" : "ANALOG"), arduino->getPin(),
+	 ((ArduinoUSART*) arduino)->getPinValue());
+
+	 free(arduino);
+
+	 }
+	 free(bytes);
+	 }
+
+	 bytes = SisbarcProtocol::sendEEPROM(statusValue, eventValueEEPROM,
+	 pinType, pin, threadTime, actionEvent);
+	 if (bytes != NULL) {
+	 arduino = SisbarcProtocol::receive(bytes);
+
+	 if (arduino != NULL) {
+
+	 if ((arduino->getTransmitterValue() == ArduinoStatus::ARDUINO
+	 && statusValue == arduino->getStatusValue()
+	 && eventValueEEPROM == arduino->getEventValue()
+	 && pinType == arduino->getPinType()
+	 && pin == arduino->getPin()
+	 && (arduino->getEventValue() == ArduinoStatus::WRITE
+	 || arduino->getEventValue()
+	 == ArduinoStatus::READ)
+	 && threadTime
+	 == ((ArduinoEEPROM*) arduino)->getThreadTime()
+	 && actionEvent
+	 == ((ArduinoEEPROM*) arduino)->getActionEvent())) {
+	 //printf("transmitter: %u, status: %u, event: %u, pinType: %s, pin: %u, threadTime: %u, actionEvent: %u\n", arduino->getTransmitterValue(), arduino->getStatusValue(), arduino->getEventValue(), (arduino->getPinType() == ArduinoStatus::DIGITAL ? "DIGITAL" : "ANALOG"), arduino->getPin(), ((ArduinoEEPROM*) arduino)->getThreadTime(), ((ArduinoEEPROM*) arduino)->getActionEvent());
+
+	 if (arduino->getEventValue() == ArduinoStatus::WRITE) {
+	 int16_t returnValue = SisbarcEEPROM::write(
+	 (ArduinoEEPROMWrite*) arduino);
+	 if (!(returnValue == 0x0001 || returnValue == 0x0000)) {
+	 printf(
+	 "%u - Write (pinType: %s, pin: %u, threadTime: %u, actionEvent: %u) = %i\n",
+	 i + 1,
+	 (pinType == ArduinoStatus::DIGITAL ?
+	 "DIGITAL" : "ANALOG"), pin,
+	 threadTime, actionEvent, returnValue);
+	 }
+	 }
+	 }
+
+	 free(arduino);
+
+	 }
+	 free(bytes);
+	 }
+
+	 if ((i + 1) % 4 == 0)
+	 countStatus = 0;
+	 else
+	 countStatus++;
+
+	 if (pinType == ArduinoStatus::DIGITAL) {
+	 if ((pin + 1) % (ArduinoStatus::DIGITAL_PIN_MAX + 1) == 0) {
+	 pinType = ArduinoStatus::ANALOG;
+	 pin = 0;
+	 } else
+	 pin++;
+
+	 if (digitalActionEvent == ArduinoEEPROM::DIGITAL_ACTION_EVENT_MAX)
+	 digitalActionEvent = 0;
+	 else
+	 digitalActionEvent++;
+
+	 if (digitalPinValue == ArduinoUSART::DIGITAL_PIN_VALUE_MAX)
+	 digitalPinValue = 3;
+	 else
+	 digitalPinValue += 4;
+
+	 } else {
+	 if ((pin + 1) % (ArduinoStatus::ANALOG_PIN_MAX + 1) == 0) {
+	 pinType = ArduinoStatus::DIGITAL;
+	 pin = 0;
+	 } else
+	 pin++;
+
+	 if (analogActionEvent == ArduinoEEPROM::ANALOG_ACTION_EVENT_MAX)
+	 analogActionEvent = 7;
+	 else
+	 analogActionEvent += 8;
+
+	 if (analogPinValue == ArduinoUSART::ANALOG_PIN_VALUE_MAX)
+	 analogPinValue = 63;
+	 else
+	 analogPinValue += 64;
+	 }
+
+	 if (threadTime == ArduinoEEPROM::THREAD_TIME_MAX)
+	 threadTime = 0;
+	 else
+	 threadTime++;
+
+	 }
+	 printf("\n");
+
+	 //Remove 4 registros
+	 bool returnValue = SisbarcEEPROM::clean(ArduinoEEPROM::DIGITAL, 0x00);
+
+	 if (returnValue)
+	 printf("Clean (pinType: %s, pin: %u)\n", "DIGITAL", 0x00);
+
+	 returnValue = SisbarcEEPROM::clean(ArduinoEEPROM::DIGITAL,
+	 ArduinoEEPROM::DIGITAL_PIN_MAX);
+
+	 if (returnValue)
+	 printf("Clean (pinType: %s, pin: %u)\n", "DIGITAL",
+	 ArduinoEEPROM::DIGITAL_PIN_MAX);
+
+	 returnValue = SisbarcEEPROM::clean(ArduinoEEPROM::ANALOG, 0x00);
+
+	 if (returnValue)
+	 printf("Clean (pinType: %s, pin: %u)\n", "ANALOG", 0x00);
+
+	 returnValue = SisbarcEEPROM::clean(ArduinoEEPROM::ANALOG,
+	 ArduinoEEPROM::ANALOG_PIN_MAX);
+
+	 if (returnValue)
+	 printf("Clean (pinType: %s, pin: %u)\n", "ANALOG",
+	 ArduinoEEPROM::ANALOG_PIN_MAX);
+
+	 printf("\n");
+
+	 pinType = ArduinoEEPROM::DIGITAL;
+	 pin = 0x00;
+
+	 //Ler os registros gravados
+	 for (uint16_t i = 0x0000; i < TOTAL_RECORDS; i++) {
+
+	 ArduinoEEPROMRead* arduino = SisbarcEEPROM::read(pinType, pin);
+	 if (arduino != NULL) {
+	 //if ((arduino->getPinType() == pinType && arduino->getPin() == pin))
+	 printf(
+	 "%u - Read =  (pinType: %s, pin: %u, threadTime: %u, actionEvent: %u)\n",
+	 i + 1,
+	 (arduino->getPinType() == ArduinoEEPROM::DIGITAL ?
+	 "DIGITAL" : "ANALOG"), arduino->getPin(),
+	 arduino->getThreadTime(), arduino->getActionEvent());
+	 free(arduino);
+	 }
+
+	 if (pinType == ArduinoEEPROM::DIGITAL) {
+	 if ((pin + 1) % (ArduinoEEPROM::DIGITAL_PIN_MAX + 1) == 0) {
+	 pinType = ArduinoEEPROM::ANALOG;
+	 pin = 0x00;
+	 } else
+	 pin++;
+	 } else {
+	 if ((pin + 1) % (ArduinoEEPROM::ANALOG_PIN_MAX + 1) == 0) {
+	 pinType = ArduinoEEPROM::DIGITAL;
+	 pin = 0x00;
+	 } else
+	 pin++;
+	 }
+	 }
+	 */
+
+	//SisbarcUSART* usart = new SisbarcUSART();
+	SISBARC_USART.onRun(printArduinoUSART);
+	SISBARC_USART.onRun(printArduinoEEPROM);
+
+	uint8_t* bytes;
+
+	bytes = SisbarcProtocol::getProtocolUSART(ArduinoUSART::RESPONSE,
+			ArduinoUSART::EXECUTE, ArduinoEEPROM::DIGITAL, 0x0D, 0x0001);
+	if (bytes != NULL) {
+		SISBARC_USART.receiveDataBySerial(*(bytes + 0));
+		SISBARC_USART.receiveDataBySerial(*(bytes + 1));
+		SISBARC_USART.receiveDataBySerial(*(bytes + 2));
+		SISBARC_USART.receiveDataBySerial(*(bytes + 3));
+
+		free(bytes);
+	}
+
+	bytes = SisbarcProtocol::getProtocolEEPROM(ArduinoEEPROM::RESPONSE,
+			ArduinoEEPROM::READ, ArduinoEEPROM::DIGITAL, 0x0D, 0x03, 0x01);
+	if (bytes != NULL) {
+		SISBARC_USART.receiveDataBySerial(*(bytes + 0));
+		SISBARC_USART.receiveDataBySerial(*(bytes + 1));
+		SISBARC_USART.receiveDataBySerial(*(bytes + 2));
+		SISBARC_USART.receiveDataBySerial(*(bytes + 3));
+
+		free(bytes);
+	}
+
+	SisbarcUSART::sendPinDigital(ArduinoUSART::SEND, 0x0D, true);
+	SisbarcUSART::sendPinPWM(ArduinoUSART::SEND_RESPONSE, 0x0A,
+			ArduinoUSART::DIGITAL_PIN_VALUE_MAX);
+	SisbarcUSART::sendPinAnalog(ArduinoUSART::RESPONSE, 0x00,
+			ArduinoUSART::ANALOG_PIN_VALUE_MAX);
+
+	return 0;
+}
+
+bool printArduinoUSART(ArduinoStatus* arduino) {
+	if (!(arduino->getEventValue() == ArduinoUSART::EXECUTE
+			|| arduino->getEventValue() == ArduinoUSART::MESSAGE))
+		return false;
+
+	printf(
+			"USART :transmitterValue: %u, statusValue: %u, eventValue: %u, pinType: %u, pin: %u, pinValue: %u\n",
+			arduino->getTransmitterValue(), arduino->getStatusValue(),
+			arduino->getEventValue(), arduino->getPinType(), arduino->getPin(),
+			((ArduinoUSART*) arduino)->getPinValue());
+	return true;
+
+}
+
+bool printArduinoEEPROM(ArduinoStatus* arduino) {
+	if (!(arduino->getEventValue() == ArduinoEEPROM::WRITE
+			|| arduino->getEventValue() == ArduinoEEPROM::READ))
+		return false;
+
+	printf(
+			"EEPROM: transmitterValue: %u, statusValue: %u, eventValue: %u, pinType: %u, pin: %u, threadTime: %u, actionEvent: %u\n",
+			arduino->getTransmitterValue(), arduino->getStatusValue(),
+			arduino->getEventValue(), arduino->getPinType(), arduino->getPin(),
+			((ArduinoEEPROM*) arduino)->getThreadTime(),
+			((ArduinoEEPROM*) arduino)->getActionEvent());
+	return true;
+}
+

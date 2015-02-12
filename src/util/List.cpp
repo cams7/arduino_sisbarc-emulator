@@ -9,23 +9,23 @@
 #include "List.h"
 
 #include <stdlib.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 namespace SISBARC {
 	template<typename T>
 	List<T>::List():
 	Iterator<T>() {
-		printf("New List\n");
+		//printf("New List\n");
 	}
 
 	template<typename T>
 	List<T>::~List() {
-		printf("Delete List\n");
+		//printf("Delete List\n");
 	}
 
 	template<typename T>
 	void List<T>::add(T* const element) {
-		Iterator<T>::add(element);
+		Iterator<T>::push(element);
 	}
 
 	template<typename T>

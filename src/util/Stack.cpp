@@ -24,7 +24,6 @@ namespace SISBARC {
 		while (!empty()) {
 			pop();
 		}
-
 		//printf("Delete Stack\n");
 	}
 

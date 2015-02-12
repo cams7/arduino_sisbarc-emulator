@@ -7,33 +7,27 @@
 
 #include "Thread.h"
 
-#include <stdio.h>
-
+//#include <stdio.h>
 #include "../util/_arduino_time.h"
 
 namespace SISBARC {
 
-//Thread::Thread() {}
+Thread::Thread(void (*callback)(void), long interval) :
+		_lastRun(0), _cachedNextRun(0), _enabled(true), _threadID(
+				(unsigned long) this) {
 
-Thread::Thread(void (*callback)(void), long _interval) {
-	enabled = true;
 	onRun(callback);
-	_cached_next_run = 0;
-	last_run = 0;
+	setInterval(interval);
 
-	ThreadID = (long) this;
-#ifdef USE_THREAD_NAMES
-	ThreadName = "Thread ";
-	ThreadName = ThreadName + ThreadID;
-#endif
-
-	setInterval(_interval);
-
-	printf("New Thread\n");
+	//printf("New Thread\n");
 }
 
 Thread::~Thread() {
-	printf("Delete Thread\n");
+	//printf("Delete Thread\n");
+}
+
+unsigned long Thread::getThreadID(void) const {
+	return _threadID;
 }
 
 void Thread::runned(long time) {
@@ -42,18 +36,18 @@ void Thread::runned(long time) {
 		time = millis();
 
 	// Saves last_run
-	last_run = time;
+	_lastRun = time;
 
 	// Cache next run
-	_cached_next_run = last_run + interval;
+	_cachedNextRun = _lastRun + _interval;
 }
 
-void Thread::setInterval(long _interval) {
+void Thread::setInterval(long const interval) {
 	// Filter intervals less than 0
-	interval = (_interval < 0 ? 0 : _interval);
+	_interval = (interval < 0 ? 0 : interval);
 
 	// Cache the next run based on the last_run
-	_cached_next_run = last_run + interval;
+	_cachedNextRun = _lastRun + _interval;
 }
 
 bool Thread::shouldRun(long time) {
@@ -62,14 +56,14 @@ bool Thread::shouldRun(long time) {
 		time = millis();
 
 	// Exceeded the time limit, AND is enabled? Then should run...
-	return ((time >= _cached_next_run) && enabled);
+	return ((time >= _cachedNextRun) && _enabled);
 }
 
 void Thread::onRun(void (*callback)(void)) {
-	_onRun = callback;
+	this->_onRun = callback;
 }
 
-void Thread::run() {
+void Thread::run(void) {
 	if (_onRun != NULL)
 		_onRun();
 

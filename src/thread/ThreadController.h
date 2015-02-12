@@ -19,41 +19,39 @@
 #include "Thread.h"
 #include "inttypes.h"
 
+#include "../util/List.h"
+
 namespace SISBARC {
 
-#define MAX_THREADS		15
-
 class ThreadController: public Thread {
-protected:
-	Thread* thread[MAX_THREADS];
-	int cached_size;
+private:
+	List<Thread>* _threads;
 
 public:
-	//ThreadController();
-	ThreadController(long _interval = 0);
+	ThreadController(long interval = 0);
 
 	virtual ~ThreadController();
 
 	// run() Method is overrided
-	void run();
+	void run(void);
 
 	// Adds a thread in the first available slot (remove first)
 	// Returns if the Thread could be added or not
-	bool add(Thread* _thread);
+	void add(Thread* const);
 
 	// remove the thread (given the Thread* or ThreadID)
-	void remove(int _id);
-	void remove(Thread* _thread);
+	void remove(unsigned long const);
+	void remove(Thread* const);
 
 	// Removes all threads
-	void clear();
+	void clear(void);
 
 	// Return the quantity of Threads
-	int size(bool cached = true);
+	int size(void) const;
 
 	// Return the I Thread on the array
 	// Returns NULL if none found
-	Thread* get(int index);
+	Thread* get(uint16_t const&) const;
 };
 
 extern ThreadController THREAD_CONTROLLER;

@@ -26,17 +26,26 @@ namespace SISBARC {
  It might be usefull if you are loging thread with Serial,
  or displaying a list of threads...
  */
-// #define USE_THREAD_NAMES	1
 class Thread {
-protected:
+private:
 	// Desired interval between runs
-	long interval;
+	long _interval;
 
 	// Last runned time in Ms
-	long last_run;
+	long _lastRun;
 
 	// Scheduled run in Ms (MUST BE CACHED)
-	long _cached_next_run;
+	long _cachedNextRun;
+
+	// If the current Thread is enabled or not
+	bool _enabled;
+
+	// ID of the Thread (initialized from memory adr.)
+	unsigned long _threadID;
+
+protected:
+	// Callback for run() if not implemented
+	void (*_onRun)(void);
 
 	/*
 	 IMPORTANT! Run after all calls to run()
@@ -46,28 +55,16 @@ protected:
 	 */
 	void runned(long time = -1);
 
-	// Callback for run() if not implemented
-	void (*_onRun)(void);
-
 public:
 	//Thread();
-	Thread(void (*callback)(void) = NULL, long _interval = 0);
+	Thread(void (*callback)(void) = NULL, long interval = 0);
 
 	virtual ~Thread();
 
-	// If the current Thread is enabled or not
-	bool enabled;
-
-	// ID of the Thread (initialized from memory adr.)
-	long ThreadID;
-
-#ifdef USE_THREAD_NAMES
-	// Thread Name (used for better UI).
-	String ThreadName;
-#endif
+	unsigned long getThreadID(void) const;
 
 	// Set the desired interval for calls, and update _cached_next_run
-	virtual void setInterval(long _interval);
+	virtual void setInterval(long const);
 
 	// Return if the Thread should be runned or not
 	virtual bool shouldRun(long time = -1);
@@ -76,8 +73,7 @@ public:
 	void onRun(void (*callback)(void));
 
 	// Runs Thread
-	virtual void run();
-
+	virtual void run(void);
 };
 
 } /* namespace SISBARC */
