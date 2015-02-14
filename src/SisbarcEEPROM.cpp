@@ -203,6 +203,14 @@ EEPROMData *SisbarcEEPROM::read(pin_type pinType, uint8_t pin) {
 	return read(address);
 
 }
+
+EEPROMData *SisbarcEEPROM::read(ArduinoPin* pin) {
+	if (pin == NULL)
+		return NULL;
+
+	return read(pin->getPinType(), pin->getPin());
+}
+
 int16_t SisbarcEEPROM::write(ArduinoEEPROMWrite* arduino) {
 	if (!isPinValid(arduino->getPinType(), arduino->getPin()))
 		return RETURN_ERROR;
@@ -246,7 +254,7 @@ int16_t SisbarcEEPROM::write(ArduinoEEPROMWrite* arduino) {
 
 		//00000000 11100000
 		mask = 0x00E0;
-		aux = arduino->getThreadTime();
+		aux = arduino->getThreadInterval();
 		aux <<= 5;
 		record |= (aux & mask);
 
@@ -264,7 +272,7 @@ int16_t SisbarcEEPROM::write(ArduinoEEPROMWrite* arduino) {
 
 		//00000011 10000000
 		mask = 0x0380;
-		aux = arduino->getThreadTime();
+		aux = arduino->getThreadInterval();
 		aux <<= 7;
 		record |= (aux & mask);
 

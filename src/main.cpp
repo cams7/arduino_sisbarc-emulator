@@ -5,143 +5,339 @@
  *      Author: cams7
  */
 
-//#include <inttypes.h>
-//#include <stdlib.h>
 #include <stdio.h>
-
-#include "thread/Thread.h"
-#include "thread/ThreadController.h"
-
-#include "_Serial.h"
-#include "SisbarcUSART.h"
-//#include <iostream>
 
 #include "ArduinoStatus.h"
 #include "ArduinoUSART.h"
 #include "ArduinoEEPROM.h"
 
-using namespace SISBARC;
-//using namespace std;
+#include "Sisbarc.h"
+#include "SisbarcEEPROM.h"
+
+#define PIN_LED_PISCA    13   //Pino 13 Digital
+
+#define PIN_LED_AMARELA  11   //Pino 11 PWM
+#define PIN_LED_VERDE    10   //Pino 10 PWM
+#define PIN_LED_VERMELHA 9    //Pino 09 PWM
+
+#define PIN_BOTAO_LED_AMARELA  12 //Pino 12 Digital
+#define PIN_BOTAO_LED_VERDE    8  //Pino 8 Digital
+#define PIN_BOTAO_LED_VERMELHA 7  //Pino 7 Digital
+
+#define PIN_POTENCIOMETRO      0  //Pino 0 Analogico
+
+#define THREAD_INTERVAL_LED_PISCA    10000 // 10 segundos
+#define THREAD_INTERVAL_BOTAO        13000  // 13 segundo
+#define THREAD_INTERVAL_POENCIOMETRO 15000  // 15 segundos
+
+#define ON_OFF 0 // Acende ou apaga
+#define BLINK  1 // Pisca-pisca
+#define FADE   2// Acende ao poucos
+
+#define THREAD_INTERVAL_100MILLIS  100  // 1/10 de segundo
+#define THREAD_INTERVAL_250MILLIS  250  // 1/4 de segundo
+#define THREAD_INTERVAL_500MILLIS  500  // 1/2 de segundo
+#define THREAD_INTERVAL_1SECOUND   1000 // 1 segundo
+#define THREAD_INTERVAL_2SECOUNDS  2000 // 2 segundos
+#define THREAD_INTERVAL_3SECOUNDS  3000 // 3 segundos
+#define THREAD_INTERVAL_5SECOUNDS  5000 // 5 segundos
+#define NO_THREAD_INTERVAL         0    // Não roda dentro da thread
 
 void setup(void);
 void loop(void);
 
-void serialEventRun(void);
+using namespace SISBARC;
 
-void callTeste5s(void);
-void callTeste1s(void);
-void callTeste10s(void);
-void callTeste30s(void);
-void callTeste1m(void);
+bool callLEDPisca(ArduinoStatus* const);
 
-bool callSerialEventUSART(ArduinoStatus* arduino);
-bool callSerialEventEEPROM(ArduinoStatus* arduino);
+bool callLEDAmarela(ArduinoStatus* const);
+bool callLEDVerde(ArduinoStatus* const);
+bool callLEDVermelha(ArduinoStatus* const);
 
-Thread* thread5s = new Thread();
-Thread* thread1s = new Thread();
-Thread* thread10s = new Thread();
-Thread* thread30s = new Thread();
-Thread* thread1m = new Thread();
+bool callBotaoLEDAmarela(ArduinoStatus* const);
+bool callBotaoLEDVerde(ArduinoStatus* const);
+bool callBotaoLEDVermelha(ArduinoStatus* const);
+
+bool callPOTENCIOMETRO(ArduinoStatus* const);
 
 int main(void) {
 	setup();
 
-	for (;;) {
+	for (;;)
 		loop();
-		//if (serialEventRun)
-		if (Serial.available() /*> 0*/) //verifica se existe comunicação com a porta serial
-			serialEventRun();
-	}
-
-	delete thread5s;
-	delete thread1s;
-	delete thread10s;
-	delete thread30s;
-	delete thread1m;
 
 	return 0;
 }
 
 void setup(void) {
-	thread5s->onRun(callTeste5s);
-	thread5s->setInterval(1000 * 5); // 5 segundos
+	Sisbarc.addThreadInterval(0x00, THREAD_INTERVAL_100MILLIS);
+	Sisbarc.addThreadInterval(0x01, THREAD_INTERVAL_250MILLIS);
+	Sisbarc.addThreadInterval(0x02, THREAD_INTERVAL_500MILLIS);
+	Sisbarc.addThreadInterval(0x03, THREAD_INTERVAL_1SECOUND);
+	Sisbarc.addThreadInterval(0x04, THREAD_INTERVAL_2SECOUNDS);
+	Sisbarc.addThreadInterval(0x05, THREAD_INTERVAL_3SECOUNDS);
+	Sisbarc.addThreadInterval(0x06, THREAD_INTERVAL_5SECOUNDS);
+	Sisbarc.addThreadInterval(0x07, NO_THREAD_INTERVAL);
 
-	thread1s->onRun(callTeste1s);
-	thread1s->setInterval(1000); // 1 segundo
+	Sisbarc.onRun(ArduinoStatus::DIGITAL, PIN_LED_PISCA, callLEDPisca,
+	THREAD_INTERVAL_LED_PISCA);
 
-	thread10s->onRun(callTeste10s);
-	thread10s->setInterval(1000 * 10); // 10 segundos
+	Sisbarc.onRun(ArduinoStatus::DIGITAL, PIN_LED_AMARELA, callLEDAmarela);
 
-	thread30s->onRun(callTeste30s);
-	thread30s->setInterval(1000 * 30); // 30 segundos
+	Sisbarc.onRun(ArduinoStatus::DIGITAL, PIN_LED_VERDE, callLEDVerde);
 
-	thread1m->onRun(callTeste1m);
-	thread1m->setInterval(1000 * 60); // 1 minuto
+	Sisbarc.onRun(ArduinoStatus::DIGITAL, PIN_LED_VERMELHA, callLEDVermelha);
 
-	THREAD_CONTROLLER.add(thread5s);
-	THREAD_CONTROLLER.add(thread1s);
-	THREAD_CONTROLLER.add(thread1m);
-	THREAD_CONTROLLER.add(thread30s);
-	THREAD_CONTROLLER.add(thread10s);
+	Sisbarc.onRun(ArduinoStatus::DIGITAL, PIN_BOTAO_LED_AMARELA,
+			callBotaoLEDAmarela, THREAD_INTERVAL_BOTAO);
 
-	SISBARC_USART.onRun(callSerialEventUSART);
-	SISBARC_USART.onRun(callSerialEventEEPROM);
+	Sisbarc.onRun(ArduinoStatus::DIGITAL, PIN_BOTAO_LED_VERDE,
+			callBotaoLEDVerde, THREAD_INTERVAL_BOTAO);
+
+	Sisbarc.onRun(ArduinoStatus::DIGITAL, PIN_BOTAO_LED_VERMELHA,
+			callBotaoLEDVermelha, THREAD_INTERVAL_BOTAO);
+
+	Sisbarc.onRun(ArduinoStatus::ANALOG, PIN_POTENCIOMETRO, callPOTENCIOMETRO,
+	THREAD_INTERVAL_POENCIOMETRO);
+
 }
 
 void loop(void) {
-	THREAD_CONTROLLER.run();
+	Sisbarc.run();
 }
 
-void serialEventRun(void) {
-	uint8_t data = (uint8_t) Serial.read(); //lê os dados da porta serial - Maximo 64 bytes
-	SISBARC_USART.receiveDataBySerial(data);
-}
-
-void callTeste5s(void) {
-	printf("callTeste5s()\n");
-}
-
-void callTeste1s(void) {
-	printf("callTeste1s()\n");
-}
-
-void callTeste10s(void) {
-	printf("callTeste10s()\n");
-}
-
-void callTeste30s(void) {
-	printf("callTeste30s()\n");
-}
-void callTeste1m(void) {
-	printf("callTeste1m()\n");
-}
-
-bool callSerialEventUSART(ArduinoStatus* arduino) {
-	if (!((arduino->getEventValue() == ArduinoStatus::EXECUTE
-			|| arduino->getEventValue() == ArduinoStatus::MESSAGE)))
+bool isCallBySerial(ArduinoStatus* const arduino) {
+	if (ArduinoStatus::OTHER_DEVICE != arduino->getTransmitterValue())
 		return false;
 
+	if (!(ArduinoStatus::SEND_RESPONSE == arduino->getStatusValue()
+			|| ArduinoStatus::RESPONSE_RESPONSE == arduino->getStatusValue()))
+		return false;
+
+	return true;
+}
+
+bool isCallBySerialToPinDigital(ArduinoStatus* const arduino) {
+	if (!isCallBySerial(arduino))
+		return false;
+
+	if (arduino->getPinType() != ArduinoStatus::DIGITAL)
+		return false;
+
+	return true;
+}
+
+bool isCallBySerialToPinAnalog(ArduinoStatus* const arduino) {
+	if (!isCallBySerial(arduino))
+		return false;
+
+	if (arduino->getPinType() != ArduinoStatus::ANALOG)
+		return false;
+
+	return true;
+}
+
+void write(ArduinoStatus* const arduino) {
+	ArduinoEEPROMWrite* arduinoEEPROMWrite = ((ArduinoEEPROMWrite*) arduino);
+
+	int16_t returnValue = SisbarcEEPROM::write(arduinoEEPROMWrite);
+	if (returnValue != 0x0000 && returnValue != 0x0001)
+		return;
+
+	arduinoEEPROMWrite->setTransmitterValue(ArduinoStatus::ARDUINO);
+	arduinoEEPROMWrite->setStatusValue(ArduinoStatus::RESPONSE);
+	Sisbarc.send(arduinoEEPROMWrite);
 	printf(
-			"USART [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, pinValue = %u]\n",
+			"WRITE [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, threadInterval = %u, actionEvent = %u]\n",
+			arduino->getTransmitterValue(), arduino->getStatusValue(),
+			arduino->getEventValue(), arduino->getPinType(), arduino->getPin(),
+			arduinoEEPROMWrite->getThreadInterval(),
+			arduinoEEPROMWrite->getActionEvent());
+}
+
+void execute(ArduinoStatus* const arduino) {
+	printf(
+			"EXECUTE [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, pinValue = %u]\n",
 			arduino->getTransmitterValue(), arduino->getStatusValue(),
 			arduino->getEventValue(), arduino->getPinType(), arduino->getPin(),
 			((ArduinoUSART*) arduino)->getPinValue());
-
-	return true;
 }
 
-bool callSerialEventEEPROM(ArduinoStatus* arduino) {
-	if (!(arduino->getEventValue() == ArduinoStatus::WRITE
-			|| arduino->getEventValue() == ArduinoStatus::READ))
-		return false;
+bool callLEDPisca(ArduinoStatus* const arduino) {
+	if (arduino == NULL) {
+		printf("Define: callLEDPisca()\n");
+	} else {
+		//printf("By serial: callLEDPisca()\n");
 
-	printf(
-			"EEPROM [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, threadTime = %u, actionEvent = %u]\n",
-			arduino->getTransmitterValue(), arduino->getStatusValue(),
-			arduino->getEventValue(), arduino->getPinType(), arduino->getPin(),
-			((ArduinoEEPROM*) arduino)->getThreadTime(),
-			((ArduinoEEPROM*) arduino)->getActionEvent());
+		if (!isCallBySerialToPinDigital(arduino))
+			return false;
 
-	return true;
+		if (arduino->getPin() != PIN_LED_PISCA)
+			return false;
+
+		if (arduino->getEventValue() == ArduinoStatus::WRITE) {
+			printf("LED PISCA - ");
+			write(arduino);
+
+			return true;
+		}
+	}
+	return false;
+}
+
+bool callLEDAmarela(ArduinoStatus* const arduino) {
+	if (arduino == NULL) {
+		printf("Define: callLEDAmarela()\n");
+	} else {
+		//printf("By serial: callLEDAmarela()\n");
+
+		if (!isCallBySerialToPinDigital(arduino))
+			return false;
+
+		if (arduino->getPin() != PIN_LED_AMARELA)
+			return false;
+
+		if (arduino->getEventValue() == ArduinoStatus::WRITE) {
+			printf("LED AMARELA - ");
+			write(arduino);
+
+			return true;
+		} else if (arduino->getEventValue() == ArduinoStatus::EXECUTE) {
+			printf("LED AMARELA - ");
+			execute(arduino);
+
+			return true;
+		}
+	}
+	return false;
+}
+
+bool callLEDVerde(ArduinoStatus* const arduino) {
+	if (arduino == NULL) {
+		printf("Define: callLEDVerde()\n");
+	} else {
+		//printf("By serial: callLEDVerde()\n");
+
+		if (!isCallBySerialToPinDigital(arduino))
+			return false;
+
+		if (arduino->getPin() != PIN_LED_VERDE)
+			return false;
+
+		if (arduino->getEventValue() == ArduinoStatus::WRITE) {
+			printf("LED VERDE - ");
+			write(arduino);
+
+			return true;
+		} else if (arduino->getEventValue() == ArduinoStatus::EXECUTE) {
+			printf("LED VERDE - ");
+			execute(arduino);
+
+			return true;
+		}
+	}
+	return false;
+}
+
+bool callLEDVermelha(ArduinoStatus* const arduino) {
+	if (arduino == NULL) {
+		printf("Define: callLEDVermelha()\n");
+	} else {
+		//printf("By serial: callLEDVermelha()\n");
+
+		if (!isCallBySerialToPinDigital(arduino))
+			return false;
+
+		if (arduino->getPin() != PIN_LED_VERMELHA)
+			return false;
+
+		if (arduino->getEventValue() == ArduinoStatus::WRITE) {
+			printf("LED VERMELHA - ");
+			write(arduino);
+
+			return true;
+		} else if (arduino->getEventValue() == ArduinoStatus::EXECUTE) {
+			printf("LED VERMELHA - ");
+			execute(arduino);
+
+			return true;
+		}
+	}
+	return false;
+}
+
+bool callBotaoLEDAmarela(ArduinoStatus* const arduino) {
+	if (arduino == NULL) {
+		printf("Define: callBotaoLEDAmarela()\n");
+	} else {
+		//printf("By serial: callBotaoLEDAmarela()\n");
+
+		if (!isCallBySerialToPinDigital(arduino))
+			return false;
+
+		if (arduino->getPin() != PIN_BOTAO_LED_AMARELA)
+			return false;
+
+		if (arduino->getEventValue() == ArduinoStatus::EXECUTE) {
+			printf("BOTAO LED AMARELA - ");
+			execute(arduino);
+
+			return true;
+		}
+	}
+	return false;
+}
+
+bool callBotaoLEDVerde(ArduinoStatus* const arduino) {
+	if (arduino == NULL) {
+		printf("Define: callBotaoLEDVerde()\n");
+	} else {
+		//printf("By serial: callBotaoLEDVerde()\n");
+
+		if (!isCallBySerialToPinDigital(arduino))
+			return false;
+
+		if (arduino->getPin() != PIN_BOTAO_LED_VERDE)
+			return false;
+
+		if (arduino->getEventValue() == ArduinoStatus::EXECUTE) {
+			printf("BOTAO LED VERDE - ");
+			execute(arduino);
+
+			return true;
+		}
+	}
+	return false;
+}
+
+bool callBotaoLEDVermelha(ArduinoStatus* const arduino) {
+	if (arduino == NULL) {
+		printf("Define: callBotaoLEDVermelha()\n");
+	} else {
+		//printf("By serial: callBotaoLEDVermelha()\n");
+
+		if (!isCallBySerialToPinDigital(arduino))
+			return false;
+
+		if (arduino->getPin() != PIN_BOTAO_LED_VERMELHA)
+			return false;
+
+		if (arduino->getEventValue() == ArduinoStatus::EXECUTE) {
+			printf("BOTAO LED VERMELHA - ");
+			execute(arduino);
+
+			return true;
+		}
+	}
+	return false;
+}
+
+bool callPOTENCIOMETRO(ArduinoStatus* const arduino) {
+	if (arduino == NULL) {
+		printf("Define: callPOTENCIOMETRO()\n");
+	} else {
+		printf("By serial: callPOTENCIOMETRO()\n");
+	}
+	return false;
 }
 

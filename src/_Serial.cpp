@@ -29,18 +29,44 @@ const uint16_t SerialClass::TIMEOUT_MS = 100; //1/10 segundos
 SerialClass::SerialClass() :
 		_status(new Stack<ArduinoStatus>()), _lastTime(0), _serialData(
 		NULL), _serialDataIndex(0x00) {
-	//printf("New SerialClass\n");
+	printf("New SerialClass\n");
 }
 
 SerialClass::~SerialClass() {
 	delete _status;
 
-	//printf("Delete SerialClass\n");
+	printf("Delete SerialClass\n");
 }
 
 void SerialClass::write(uint8_t* data, const uint8_t size) {
-	uint32_t protocol = Binary::bytesToInt32(data);
-	printf("serial write: %s\n", Binary::intToString4Bytes(protocol));
+	//uint32_t protocol = Binary::bytesToInt32(data);
+	ArduinoStatus* arduino = SisbarcProtocol::decode(data);
+
+	printf("Serial.write: ");
+	if (arduino != NULL) {
+		if (arduino->getEventValue() == ArduinoStatus::EXECUTE
+				|| arduino->getEventValue() == ArduinoStatus::MESSAGE) {
+			printf(
+					"ArduinoUSART [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, pinValue = %u]\n",
+					arduino->getTransmitterValue(), arduino->getStatusValue(),
+					arduino->getEventValue(), arduino->getPinType(),
+					arduino->getPin(),
+					((ArduinoUSART*) arduino)->getPinValue());
+		} else if (arduino->getEventValue() == ArduinoStatus::WRITE
+				|| arduino->getEventValue() == ArduinoStatus::READ) {
+			printf(
+					"ArduinoEEPROM [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, threadInterval = %u, actionEvent = %u]\n",
+					arduino->getTransmitterValue(), arduino->getStatusValue(),
+					arduino->getEventValue(), arduino->getPinType(),
+					arduino->getPin(),
+					((ArduinoEEPROM*) arduino)->getThreadInterval(),
+					((ArduinoEEPROM*) arduino)->getActionEvent());
+		}
+
+		delete arduino;
+	}
+
+	printf("\n");
 }
 
 void SerialClass::readAllLines(void) {
@@ -176,7 +202,7 @@ void SerialClass::readAllLines(void) {
 				|| eventValue == ArduinoStatus::MESSAGE) {
 			((ArduinoUSART*) arduino)->setPinValue(linha[5]);
 		} else {
-			((ArduinoEEPROM*) arduino)->setThreadTime(linha[5]);
+			((ArduinoEEPROM*) arduino)->setThreadInterval(linha[5]);
 			((ArduinoEEPROM*) arduino)->setActionEvent(linha[6]);
 		}
 
@@ -252,7 +278,7 @@ bool SerialClass::validateLine(uint16_t& value, uint16_t* linha, uint8_t& index,
 
 		} else if ((event == ArduinoStatus::WRITE
 				|| event == ArduinoStatus::READ)
-				&& value > ArduinoEEPROM::THREAD_TIME_MAX) {
+				&& value > ArduinoEEPROM::THREAD_INTERVAL_MAX) {
 			printf(
 					"ERROR: 'THREAD_TIME' do Arduino na linha '%u' não e valido\n",
 					countLines + 1);
@@ -287,6 +313,10 @@ bool SerialClass::validateLine(uint16_t& value, uint16_t* linha, uint8_t& index,
 	return true;
 }
 
+bool SerialClass::isAvailable(void) {
+	return !_status->empty() || (_serialDataIndex > 0x00 && _serialData != NULL);
+}
+
 bool SerialClass::available(void) {
 	long time = millis();
 	if ((time - _lastTime) > TIMEOUT_MS) {
@@ -294,14 +324,13 @@ bool SerialClass::available(void) {
 
 		readAllLines();
 
-		return !_status->empty();
+		return isAvailable();
 	}
 	return false;
 }
 
 int16_t SerialClass::read(void) {
-	//printf("read()\n");
-	if (!_status->empty()) {
+	if (isAvailable()) {
 		if (_serialDataIndex == 0x00 && _serialData == NULL) {
 			ArduinoStatus* arduino = _status->top();
 			_serialData = SisbarcProtocol::getProtocol(arduino);

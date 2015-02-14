@@ -9,33 +9,33 @@
 
 namespace SISBARC {
 
-const uint8_t EEPROMData::THREAD_TIME_MAX = 0x07; //7
+const uint8_t EEPROMData::THREAD_INTERVAL_MAX = 0x07; //7
 const uint8_t EEPROMData::DIGITAL_ACTION_EVENT_MAX = 0x1F; //31
 const uint8_t EEPROMData::ANALOG_ACTION_EVENT_MAX = 0x7F; //127
 
 EEPROMData::EEPROMData() :
-		threadTime(0x00), actionEvent(0x00) {
+		_threadInterval(0x00), _actionEvent(0x00) {
 }
 
-EEPROMData::EEPROMData(uint8_t threadTime, uint8_t actionEvent) :
-		threadTime(threadTime), actionEvent(actionEvent) {
+EEPROMData::EEPROMData(uint8_t threadInterval, uint8_t actionEvent) :
+		_threadInterval(threadInterval), _actionEvent(actionEvent) {
 }
 
 EEPROMData::~EEPROMData() {
 }
 
-uint8_t EEPROMData::getThreadTime(void) {
-	return threadTime;
+uint8_t EEPROMData::getThreadInterval(void) {
+	return _threadInterval;
 }
-void EEPROMData::setThreadTime(uint8_t threadTime) {
-	this->threadTime = threadTime;
+void EEPROMData::setThreadInterval(uint8_t threadInterval) {
+	this->_threadInterval = threadInterval;
 }
 
 uint8_t EEPROMData::getActionEvent(void) {
-	return actionEvent;
+	return _actionEvent;
 }
 void EEPROMData::setActionEvent(uint8_t actionEvent) {
-	this->actionEvent = actionEvent;
+	this->_actionEvent = actionEvent;
 }
 
 } /* namespace SISBARC */

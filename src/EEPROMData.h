@@ -14,11 +14,11 @@ namespace SISBARC {
 
 class EEPROMData {
 private:
-	uint8_t threadTime;
-	uint8_t actionEvent;
+	uint8_t _threadInterval;
+	uint8_t _actionEvent;
 
 public:
-	static const uint8_t THREAD_TIME_MAX;
+	static const uint8_t THREAD_INTERVAL_MAX;
 
 	static const uint8_t DIGITAL_ACTION_EVENT_MAX;
 	static const uint8_t ANALOG_ACTION_EVENT_MAX;
@@ -26,10 +26,10 @@ public:
 	EEPROMData();
 	virtual ~EEPROMData();
 
-	EEPROMData(uint8_t threadTime, uint8_t actionEvent);
+	EEPROMData(uint8_t threadInterval, uint8_t actionEvent);
 
-	uint8_t getThreadTime(void);
-	void setThreadTime(uint8_t threadTime);
+	uint8_t getThreadInterval(void);
+	void setThreadInterval(uint8_t threadInterval);
 
 	uint8_t getActionEvent(void);
 	void setActionEvent(uint8_t actionEvent);

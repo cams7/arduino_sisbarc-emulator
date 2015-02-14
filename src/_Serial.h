@@ -35,6 +35,8 @@ private:
 
 	void readAllLines(void);
 
+	bool isAvailable(void);
+
 public:
 	SerialClass();
 	virtual ~SerialClass();

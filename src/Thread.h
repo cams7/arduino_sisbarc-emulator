@@ -14,9 +14,10 @@
 #ifndef THREAD_H_
 #define THREAD_H_
 
-//#include <Arduino.h>
 #include <inttypes.h>
 #include <stdlib.h>
+
+#include "ArduinoStatus.h"
 
 namespace SISBARC {
 
@@ -43,9 +44,13 @@ private:
 	// ID of the Thread (initialized from memory adr.)
 	unsigned long _threadID;
 
+	// Callback set
+	//void setCallback(bool (*callback)(ArduinoStatus*));
+
 protected:
 	// Callback for run() if not implemented
-	void (*_onRun)(void);
+	//void (*_onRun)(void);
+	bool (*_callback)(ArduinoStatus*);
 
 	/*
 	 IMPORTANT! Run after all calls to run()
@@ -57,23 +62,22 @@ protected:
 
 public:
 	//Thread();
-	Thread(void (*callback)(void) = NULL, long interval = 0);
+	Thread(bool (*callback)(ArduinoStatus*) = NULL, long interval = 0);
 
 	virtual ~Thread();
 
-	unsigned long getThreadID(void) const;
+	virtual unsigned long getThreadID(void) const;
+
+	void setEnabled(bool const);
 
 	// Set the desired interval for calls, and update _cached_next_run
-	virtual void setInterval(long const);
+	void setInterval(long const);
 
 	// Return if the Thread should be runned or not
 	virtual bool shouldRun(long time = -1);
 
-	// Callback set
-	void onRun(void (*callback)(void));
-
 	// Runs Thread
-	virtual void run(void);
+	virtual bool run(ArduinoStatus* const arduino = NULL);
 };
 
 } /* namespace SISBARC */

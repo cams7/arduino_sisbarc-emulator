@@ -127,8 +127,8 @@ uint32_t SisbarcProtocol::encode(ArduinoStatus* arduino) {
 			|| arduino->getEventValue() == ArduinoStatus::READ) {
 
 		//Os valores da 'thread time' estao entre 0-7
-		if (((ArduinoEEPROM*) arduino)->getThreadTime()
-				> ArduinoEEPROM::THREAD_TIME_MAX)
+		if (((ArduinoEEPROM*) arduino)->getThreadInterval()
+				> ArduinoEEPROM::THREAD_INTERVAL_MAX)
 			return EMPTY_BITS;
 
 		//Os valores do 'action event' estao entre 0-31
@@ -147,7 +147,7 @@ uint32_t SisbarcProtocol::encode(ArduinoStatus* arduino) {
 	uint32_t protocol = EMPTY_BITS;
 
 	uint32_t mask = 0x00080000;
-	uint32_t aux = ArduinoStatus::ARDUINO;
+	uint32_t aux = arduino->getTransmitterValue();
 	aux <<= (TOTAL_BITS_DATA - 1);
 	protocol |= (aux & mask); //00000000 00001000 00000000 00000000
 
@@ -182,7 +182,7 @@ uint32_t SisbarcProtocol::encode(ArduinoStatus* arduino) {
 		} else if (arduino->getEventValue() == ArduinoStatus::WRITE
 				|| arduino->getEventValue() == ArduinoStatus::READ) {
 			mask = 0x000000E0;
-			aux = ((ArduinoEEPROM*) arduino)->getThreadTime();
+			aux = ((ArduinoEEPROM*) arduino)->getThreadInterval();
 			aux <<= TOTAL_BITS_DIGITAL_ACTION_EVENT;
 			protocol |= (aux & mask); //00000000 00000000 00000000 11100000
 
@@ -204,7 +204,7 @@ uint32_t SisbarcProtocol::encode(ArduinoStatus* arduino) {
 		} else if (arduino->getEventValue() == ArduinoStatus::WRITE
 				|| arduino->getEventValue() == ArduinoStatus::READ) {
 			mask = 0x00000380;
-			aux = ((ArduinoEEPROM*) arduino)->getThreadTime();
+			aux = ((ArduinoEEPROM*) arduino)->getThreadInterval();
 			aux <<= TOTAL_BITS_ANALOG_ACTION_EVENT;
 			protocol |= (aux & mask); //00000000 00000000 00000011 10000000
 
@@ -388,7 +388,7 @@ ArduinoStatus *SisbarcProtocol::decode(uint8_t const values[]) {
 			uint32_t threadTime = protocol & mask;
 			threadTime >>= (TOTAL_BITS_CHECKSUM
 					+ TOTAL_BITS_DIGITAL_ACTION_EVENT); // 00000000 00000000 11100000 00000000
-			((ArduinoEEPROM*) arduino)->setThreadTime((uint8_t) threadTime);
+			((ArduinoEEPROM*) arduino)->setThreadInterval((uint8_t) threadTime);
 
 			//0-31 _ VALOR PIN    5bits
 			mask = 0x00001F00;
@@ -418,7 +418,7 @@ ArduinoStatus *SisbarcProtocol::decode(uint8_t const values[]) {
 			uint32_t threadTime = protocol & mask;
 			threadTime >>=
 					(TOTAL_BITS_CHECKSUM + TOTAL_BITS_ANALOG_ACTION_EVENT); // 00000000 00000011 10000000 00000000
-			((ArduinoEEPROM*) arduino)->setThreadTime((uint8_t) threadTime);
+			((ArduinoEEPROM*) arduino)->setThreadInterval((uint8_t) threadTime);
 
 			//0-31 _ VALOR PIN    5bits
 			mask = 0x00007F00;

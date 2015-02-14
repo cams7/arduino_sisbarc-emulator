@@ -9,23 +9,20 @@
 #define ARDUINOSTATUS_H_
 
 #include <inttypes.h>
+#include "ArduinoPin.h"
 
 namespace SISBARC {
 
 typedef uint8_t transmitter;
 typedef uint8_t status;
 typedef uint8_t event;
-typedef uint8_t pin_type;
 
-class ArduinoStatus {
+class ArduinoStatus: public ArduinoPin {
 
 private:
-	transmitter transmitterValue;
-	status statusValue;
-	event eventValue;
-	pin_type pinType;
-
-	uint8_t pin;
+	transmitter _transmitterValue;
+	status _statusValue;
+	event _eventValue;
 
 public:
 	static const transmitter ARDUINO; //Mensagem enviada do Arduino
@@ -41,29 +38,14 @@ public:
 	static const event READ;
 	static const event MESSAGE;
 
-	static const pin_type DIGITAL; //Porta Digital
-	static const pin_type ANALOG; //Porta Analogica
-
 	static const uint8_t TRANSMITTER_MAX;
 	static const uint8_t STATUS_MAX;
 	static const uint8_t EVENT_MAX;
-	static const uint8_t PIN_TYPE_MAX;
-
-	static const uint8_t DIGITAL_PIN_MAX;        //Numero maximo da porta e 63
-	static const uint8_t ANALOG_PIN_MAX;        //Numero maximo da porta e 15
-
-	static const uint8_t PINS_DIGITAL_SIZE;
-	static const uint8_t PINS_DIGITAL[];
-
-	static const uint8_t PINS_DIGITAL_PWM_SIZE;
-	static const uint8_t PINS_DIGITAL_PWM[];
-
-	static const uint8_t PINS_ANALOG_SIZE;
-	static const uint8_t PINS_ANALOG[];
 
 	ArduinoStatus();
 	ArduinoStatus(status statusValue, event eventValue, pin_type pinType,
 			uint8_t pin);
+	ArduinoStatus(status statusValue, event eventValue, ArduinoPin* pin);
 
 	virtual ~ArduinoStatus();
 
@@ -75,12 +57,6 @@ public:
 
 	event getEventValue(void);
 	void setEventValue(event eventValue);
-
-	pin_type getPinType(void);
-	void setPinType(pin_type pinType);
-
-	uint8_t getPin(void);
-	void setPin(uint8_t pin);
 
 };
 

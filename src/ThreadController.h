@@ -19,7 +19,7 @@
 #include "Thread.h"
 #include "inttypes.h"
 
-#include "../util/List.h"
+#include "util/List.h"
 
 namespace SISBARC {
 
@@ -27,13 +27,16 @@ class ThreadController: public Thread {
 private:
 	List<Thread>* _threads;
 
+protected:
+	List<Thread>* getThreads(void) const;
+
 public:
 	ThreadController(long interval = 0);
 
 	virtual ~ThreadController();
 
 	// run() Method is overrided
-	void run(void);
+	virtual void run(void);
 
 	// Adds a thread in the first available slot (remove first)
 	// Returns if the Thread could be added or not
@@ -47,14 +50,14 @@ public:
 	void clear(void);
 
 	// Return the quantity of Threads
-	int size(void) const;
+	uint16_t size(void) const;
 
 	// Return the I Thread on the array
 	// Returns NULL if none found
 	Thread* get(uint16_t const&) const;
 };
 
-extern ThreadController THREAD_CONTROLLER;
+//extern ThreadController THREAD_CONTROLLER;
 
 } /* namespace SISBARC */
 

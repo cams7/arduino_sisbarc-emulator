@@ -14,15 +14,29 @@ ArduinoEEPROM::ArduinoEEPROM() :
 }
 
 ArduinoEEPROM::ArduinoEEPROM(status statusValue, event eventValue,
-		pin_type pinType, uint8_t pin, uint8_t threadTime, uint8_t actionEvent) :
+		pin_type pinType, uint8_t pin, uint8_t threadInterval,
+		uint8_t actionEvent) :
 		ArduinoStatus(statusValue, eventValue, pinType, pin), EEPROMData(
-				threadTime, actionEvent) {
+				threadInterval, actionEvent) {
 }
 
 ArduinoEEPROM::ArduinoEEPROM(status statusValue, event eventValue,
 		pin_type pinType, uint8_t pin, EEPROMData* data) :
 		ArduinoStatus(statusValue, eventValue, pinType, pin) {
-	setThreadTime(data->getThreadTime());
+	setThreadInterval(data->getThreadInterval());
+	setActionEvent(data->getActionEvent());
+}
+
+ArduinoEEPROM::ArduinoEEPROM(status statusValue, event eventValue,
+		ArduinoPin* pin, uint8_t threadInterval, uint8_t actionEvent) :
+		ArduinoStatus(statusValue, eventValue, pin), EEPROMData(threadInterval,
+				actionEvent) {
+
+}
+ArduinoEEPROM::ArduinoEEPROM(status statusValue, event eventValue,
+		ArduinoPin* pin, EEPROMData* data) :
+		ArduinoStatus(statusValue, eventValue, pin) {
+	setThreadInterval(data->getThreadInterval());
 	setActionEvent(data->getActionEvent());
 }
 
@@ -35,18 +49,27 @@ ArduinoEEPROMRead::ArduinoEEPROMRead() :
 }
 
 ArduinoEEPROMRead::ArduinoEEPROMRead(status statusValue, pin_type pinType,
-		uint8_t pin, uint8_t threadTime, uint8_t actionEvent) :
-		ArduinoEEPROM(statusValue, READ, pinType, pin, threadTime, actionEvent) {
+		uint8_t pin, uint8_t threadInterval, uint8_t actionEvent) :
+		ArduinoEEPROM(statusValue, READ, pinType, pin, threadInterval,
+				actionEvent) {
 }
 
 ArduinoEEPROMRead::ArduinoEEPROMRead(status statusValue, pin_type pinType,
 		uint8_t pin, EEPROMData* data) :
 		ArduinoEEPROM(statusValue, READ, pinType, pin, data) {
+}
 
+ArduinoEEPROMRead::ArduinoEEPROMRead(status statusValue, ArduinoPin* pin,
+		uint8_t threadInterval, uint8_t actionEvent) :
+		ArduinoEEPROM(statusValue, READ, pin, threadInterval, actionEvent) {
+
+}
+ArduinoEEPROMRead::ArduinoEEPROMRead(status statusValue, ArduinoPin* pin,
+		EEPROMData* data) :
+		ArduinoEEPROM(statusValue, READ, pin, data) {
 }
 
 ArduinoEEPROMRead::~ArduinoEEPROMRead() {
-	// TODO Auto-generated destructor stub
 }
 
 ArduinoEEPROMWrite::ArduinoEEPROMWrite() :
@@ -55,18 +78,27 @@ ArduinoEEPROMWrite::ArduinoEEPROMWrite() :
 }
 
 ArduinoEEPROMWrite::ArduinoEEPROMWrite(status statusValue, pin_type pinType,
-		uint8_t pin, uint8_t threadTime, uint8_t actionEvent) :
-		ArduinoEEPROM(statusValue, WRITE, pinType, pin, threadTime, actionEvent) {
+		uint8_t pin, uint8_t threadInterval, uint8_t actionEvent) :
+		ArduinoEEPROM(statusValue, WRITE, pinType, pin, threadInterval,
+				actionEvent) {
 }
 
 ArduinoEEPROMWrite::ArduinoEEPROMWrite(status statusValue, pin_type pinType,
 		uint8_t pin, EEPROMData* data) :
 		ArduinoEEPROM(statusValue, WRITE, pinType, pin, data) {
+}
 
+ArduinoEEPROMWrite::ArduinoEEPROMWrite(status statusValue, ArduinoPin* pin,
+		uint8_t threadInterval, uint8_t actionEvent) :
+		ArduinoEEPROM(statusValue, WRITE, pin, threadInterval, actionEvent) {
+}
+
+ArduinoEEPROMWrite::ArduinoEEPROMWrite(status statusValue, ArduinoPin* pin,
+		EEPROMData* data) :
+		ArduinoEEPROM(statusValue, WRITE, pin, data) {
 }
 
 ArduinoEEPROMWrite::~ArduinoEEPROMWrite() {
-	// TODO Auto-generated destructor stub
 }
 
 } /* namespace SISBARC */

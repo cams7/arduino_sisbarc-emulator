@@ -34,6 +34,7 @@
 RemoteSystemsTempFiles/
 .cproject
 Debug/
+Release/
 
 #Linux
 *~
