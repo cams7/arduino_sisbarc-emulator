@@ -18,7 +18,7 @@
 #include "_Serial.h"
 
 #include <stdlib.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 namespace SISBARC {
 
@@ -27,14 +27,14 @@ SisbarcClass::SisbarcClass() :
 				0x00), _threadIntervals(
 				(uint16_t*) malloc(ArduinoEEPROM::THREAD_INTERVAL_MAX + 1)), _totalThreadIntervals(
 				0x00) {
-	printf("New Sisbarc\n");
+	//printf("New Sisbarc\n");
 }
 
 SisbarcClass::~SisbarcClass() {
 	free(_serialData);
 	free(_threadIntervals);
 
-	printf("Delete Sisbarc\n");
+	//printf("Delete Sisbarc\n");
 }
 
 //Recebe protocolo
@@ -56,12 +56,11 @@ void SisbarcClass::receiveDataBySerial(ArduinoStatus* const arduino) {
 				if (interval > 0) {
 					thread->setInterval(interval);
 					thread->setEnabled(true);
-					printf("interval thread now is %i\n", interval);
+					//printf("interval thread now is %i\n", interval);
 				} else if (interval == 0) {
 					thread->setEnabled(false);
-					printf("thread now is not enabled\n");
-				} else
-					printf("interval not found in EEPROM\n");
+					//printf("thread now is not enabled\n");
+				} //else 	printf("interval not found in EEPROM\n");
 
 				break;
 			}

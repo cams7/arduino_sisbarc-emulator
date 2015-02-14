@@ -147,25 +147,28 @@ void write(ArduinoStatus* const arduino) {
 	arduinoEEPROMWrite->setTransmitterValue(ArduinoStatus::ARDUINO);
 	arduinoEEPROMWrite->setStatusValue(ArduinoStatus::RESPONSE);
 	Sisbarc.send(arduinoEEPROMWrite);
-	printf(
-			"WRITE [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, threadInterval = %u, actionEvent = %u]\n",
-			arduino->getTransmitterValue(), arduino->getStatusValue(),
-			arduino->getEventValue(), arduino->getPinType(), arduino->getPin(),
-			arduinoEEPROMWrite->getThreadInterval(),
-			arduinoEEPROMWrite->getActionEvent());
+	//printf(
+	//		"WRITE [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, threadInterval = %u, actionEvent = %u]\n",
+	//		arduino->getTransmitterValue(), arduino->getStatusValue(),
+	//		arduino->getEventValue(), arduino->getPinType(), arduino->getPin(),
+	//		arduinoEEPROMWrite->getThreadInterval(),
+	//		arduinoEEPROMWrite->getActionEvent());
 }
 
 void execute(ArduinoStatus* const arduino) {
-	printf(
-			"EXECUTE [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, pinValue = %u]\n",
-			arduino->getTransmitterValue(), arduino->getStatusValue(),
-			arduino->getEventValue(), arduino->getPinType(), arduino->getPin(),
-			((ArduinoUSART*) arduino)->getPinValue());
+	arduino->setTransmitterValue(ArduinoStatus::ARDUINO);
+	arduino->setStatusValue(ArduinoStatus::RESPONSE);
+	Sisbarc.send(arduino);
+	//printf(
+	//		"EXECUTE [transmitter = %u, status = %u, event = %u, pinType = %u, pin = %u, pinValue = %u]\n",
+	//		arduino->getTransmitterValue(), arduino->getStatusValue(),
+	//		arduino->getEventValue(), arduino->getPinType(), arduino->getPin(),
+	//		((ArduinoUSART*) arduino)->getPinValue());
 }
 
 bool callLEDPisca(ArduinoStatus* const arduino) {
 	if (arduino == NULL) {
-		printf("Define: callLEDPisca()\n");
+		printf("callLEDPisca()\n");
 	} else {
 		//printf("By serial: callLEDPisca()\n");
 
@@ -187,7 +190,7 @@ bool callLEDPisca(ArduinoStatus* const arduino) {
 
 bool callLEDAmarela(ArduinoStatus* const arduino) {
 	if (arduino == NULL) {
-		printf("Define: callLEDAmarela()\n");
+		printf("callLEDAmarela()\n");
 	} else {
 		//printf("By serial: callLEDAmarela()\n");
 
@@ -214,7 +217,7 @@ bool callLEDAmarela(ArduinoStatus* const arduino) {
 
 bool callLEDVerde(ArduinoStatus* const arduino) {
 	if (arduino == NULL) {
-		printf("Define: callLEDVerde()\n");
+		printf("callLEDVerde()\n");
 	} else {
 		//printf("By serial: callLEDVerde()\n");
 
@@ -241,7 +244,7 @@ bool callLEDVerde(ArduinoStatus* const arduino) {
 
 bool callLEDVermelha(ArduinoStatus* const arduino) {
 	if (arduino == NULL) {
-		printf("Define: callLEDVermelha()\n");
+		printf("callLEDVermelha()\n");
 	} else {
 		//printf("By serial: callLEDVermelha()\n");
 
@@ -268,7 +271,7 @@ bool callLEDVermelha(ArduinoStatus* const arduino) {
 
 bool callBotaoLEDAmarela(ArduinoStatus* const arduino) {
 	if (arduino == NULL) {
-		printf("Define: callBotaoLEDAmarela()\n");
+		printf("callBotaoLEDAmarela()\n");
 	} else {
 		//printf("By serial: callBotaoLEDAmarela()\n");
 
@@ -290,7 +293,7 @@ bool callBotaoLEDAmarela(ArduinoStatus* const arduino) {
 
 bool callBotaoLEDVerde(ArduinoStatus* const arduino) {
 	if (arduino == NULL) {
-		printf("Define: callBotaoLEDVerde()\n");
+		printf("callBotaoLEDVerde()\n");
 	} else {
 		//printf("By serial: callBotaoLEDVerde()\n");
 
@@ -312,7 +315,7 @@ bool callBotaoLEDVerde(ArduinoStatus* const arduino) {
 
 bool callBotaoLEDVermelha(ArduinoStatus* const arduino) {
 	if (arduino == NULL) {
-		printf("Define: callBotaoLEDVermelha()\n");
+		printf("callBotaoLEDVermelha()\n");
 	} else {
 		//printf("By serial: callBotaoLEDVermelha()\n");
 
@@ -334,7 +337,7 @@ bool callBotaoLEDVermelha(ArduinoStatus* const arduino) {
 
 bool callPOTENCIOMETRO(ArduinoStatus* const arduino) {
 	if (arduino == NULL) {
-		printf("Define: callPOTENCIOMETRO()\n");
+		printf("callPOTENCIOMETRO()\n");
 	} else {
 		printf("By serial: callPOTENCIOMETRO()\n");
 	}

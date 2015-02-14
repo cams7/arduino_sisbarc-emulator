@@ -10,7 +10,7 @@
 #include "util/Iterator.h"
 
 //#include <Arduino.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include "util/_arduino_time.h"
 
 namespace SISBARC {
@@ -20,12 +20,12 @@ ThreadController::ThreadController(long interval) :
 
 	Thread::setInterval(interval);
 
-	printf("New ThreadController\n");
+	//printf("New ThreadController\n");
 }
 
 ThreadController::~ThreadController() {
 	delete _threads;
-	printf("Delete ThreadController\n");
+	//printf("Delete ThreadController\n");
 }
 
 List<Thread>* ThreadController::getThreads(void) const {

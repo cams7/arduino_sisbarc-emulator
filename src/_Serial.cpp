@@ -29,13 +29,13 @@ const uint16_t SerialClass::TIMEOUT_MS = 100; //1/10 segundos
 SerialClass::SerialClass() :
 		_status(new Stack<ArduinoStatus>()), _lastTime(0), _serialData(
 		NULL), _serialDataIndex(0x00) {
-	printf("New SerialClass\n");
+	//printf("New SerialClass\n");
 }
 
 SerialClass::~SerialClass() {
 	delete _status;
 
-	printf("Delete SerialClass\n");
+	//printf("Delete SerialClass\n");
 }
 
 void SerialClass::write(uint8_t* data, const uint8_t size) {

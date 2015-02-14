@@ -8,7 +8,7 @@
 #include "Thread.h"
 
 //#include <Arduino.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include "util/_arduino_time.h"
 
 namespace SISBARC {
@@ -20,11 +20,11 @@ Thread::Thread(bool (*callback)(ArduinoStatus*), long interval) :
 	_callback = callback;
 	setInterval(interval);
 
-	printf("New Thread\n");
+	//printf("New Thread\n");
 }
 
 Thread::~Thread() {
-	printf("Delete Thread\n");
+	//printf("Delete Thread\n");
 }
 
 unsigned long Thread::getThreadID(void) const {
