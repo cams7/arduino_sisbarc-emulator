@@ -8,8 +8,8 @@
 #include "Thread.h"
 
 //#include <Arduino.h>
-//#include <stdio.h>
 #include "util/_arduino_time.h"
+//#include <stdio.h>
 
 namespace SISBARC {
 

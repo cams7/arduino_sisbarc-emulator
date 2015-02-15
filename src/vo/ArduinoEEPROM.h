@@ -8,8 +8,6 @@
 #ifndef ARDUINOEEPROM_H_
 #define ARDUINOEEPROM_H_
 
-#include <inttypes.h>
-
 #include "ArduinoStatus.h"
 #include "EEPROMData.h"
 

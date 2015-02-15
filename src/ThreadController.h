@@ -17,8 +17,6 @@
 #define THREADCONTROLLER_H_
 
 #include "Thread.h"
-#include "inttypes.h"
-
 #include "util/List.h"
 
 namespace SISBARC {

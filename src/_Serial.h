@@ -12,7 +12,7 @@
 
 #include "_IO.h"
 #include "util/Stack.h"
-#include "ArduinoStatus.h"
+#include "vo/ArduinoStatus.h"
 
 namespace SISBARC {
 

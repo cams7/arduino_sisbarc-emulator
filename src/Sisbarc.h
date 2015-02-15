@@ -8,10 +8,8 @@
 #ifndef SISBARC_H_
 #define SISBARC_H_
 
-#include <inttypes.h>
-
 #include "ThreadController.h"
-#include "ArduinoStatus.h"
+#include "vo/ArduinoStatus.h"
 
 namespace SISBARC {
 
@@ -27,17 +25,19 @@ private:
 
 	void receiveDataBySerial(ArduinoStatus* const);
 
-	void serialEventRun(void);
-
 	void serialWrite(uint8_t* const);
 
 	int32_t getThreadInterval(ArduinoPin* const, int32_t);
 
 	void onRun(ArduinoPin* const, bool (*callback)(ArduinoStatus*), int32_t);
 
+	void (*_serialWrite)(uint8_t* const);
+
 public:
 	SisbarcClass();
 	virtual ~SisbarcClass();
+
+	void serialEventRun(uint8_t const);
 
 	void send(ArduinoStatus* const);
 
@@ -52,9 +52,11 @@ public:
 			int32_t interval = 0x00000000);
 
 	void run(void);
+
+	void onRunSerialWrite(void (*serialWrite)(uint8_t* const));
 };
 
-extern SisbarcClass Sisbarc;
+//extern SisbarcClass Sisbarc;
 
 } /* namespace SISBARC */
 

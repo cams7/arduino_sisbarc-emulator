@@ -7,10 +7,10 @@
 
 #include "Checksum.h"
 
-#include "Binary.h"
-
 //#include <Arduino.h>
 #include <stdlib.h>
+
+#include "Binary.h"
 
 namespace SISBARC {
 

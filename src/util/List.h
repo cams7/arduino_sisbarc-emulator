@@ -8,8 +8,9 @@
 #ifndef LIST_H_
 #define LIST_H_
 
-#include "Node.h"
 #include <inttypes.h>
+
+#include "Node.h"
 #include "Iterator.h"
 
 namespace SISBARC {

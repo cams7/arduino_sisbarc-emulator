@@ -7,8 +7,9 @@
 
 #include "SisbarcEEPROM.h"
 
-#include "util/Binary.h"
 #include <stdlib.h>
+#include "util/Binary.h"
+
 #include "_EEPROM.h"
 
 namespace SISBARC {

@@ -10,7 +10,7 @@
 
 #include <inttypes.h>
 
-#include "ArduinoStatus.h"
+#include "vo/ArduinoStatus.h"
 
 namespace SISBARC {
 

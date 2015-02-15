@@ -7,13 +7,14 @@
 
 #include "_Serial.h"
 
+#include <stdio.h>
+
 #include "util/_arduino_time.h"
 #include "util/Binary.h"
 
-#include "ArduinoUSART.h"
-#include "ArduinoEEPROM.h"
+#include "vo/ArduinoUSART.h"
+#include "vo/ArduinoEEPROM.h"
 #include "SisbarcProtocol.h"
-#include <stdio.h>
 
 namespace SISBARC {
 

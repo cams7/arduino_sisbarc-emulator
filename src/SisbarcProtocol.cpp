@@ -7,12 +7,13 @@
 
 #include "SisbarcProtocol.h"
 
-#include "ArduinoEEPROM.h"
-#include "util/Binary.h"
-#include "util/Checksum.h"
 #include <stdlib.h>
 
-#include "ArduinoUSART.h"
+#include "util/Binary.h"
+#include "util/Checksum.h"
+
+#include "vo/ArduinoEEPROM.h"
+#include "vo/ArduinoUSART.h"
 
 namespace SISBARC {
 

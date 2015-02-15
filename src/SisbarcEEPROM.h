@@ -10,9 +10,9 @@
 
 #include <inttypes.h>
 
-#include "ArduinoPin.h"
-#include "ArduinoEEPROM.h"
-#include "EEPROMData.h"
+#include "vo/ArduinoPin.h"
+#include "vo/ArduinoEEPROM.h"
+#include "vo/EEPROMData.h"
 
 namespace SISBARC {
 

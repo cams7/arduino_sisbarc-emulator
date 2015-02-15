@@ -10,10 +10,10 @@
 
 #define _POSIX_C_SOURCE 200809L
 
-//#include <inttypes.h>
-#include <math.h>
-//#include <stdio.h>
+#include <inttypes.h>
+#include <stdio.h>
 #include <time.h>
+#include <math.h>
 
 inline unsigned long int millis(void) {
 	struct timespec spec;

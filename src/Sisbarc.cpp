@@ -9,24 +9,24 @@
 #include "SisbarcProtocol.h"
 #include "SisbarcEEPROM.h"
 
-#include "ArduinoUSART.h"
-#include "ArduinoEEPROM.h"
+#include "vo/ArduinoUSART.h"
+#include "vo/ArduinoEEPROM.h"
 
 #include "util/Iterator.h"
 
 //#include <Arduino.h>
-#include "_Serial.h"
+//#include "_Serial.h"
 
-#include <stdlib.h>
 //#include <stdio.h>
 
 namespace SISBARC {
 
 SisbarcClass::SisbarcClass() :
-		_serialData((uint8_t*) malloc(SisbarcProtocol::TOTAL_BYTES_PROTOCOL)), _serialDataIndex(
+		ThreadController(), _serialData(
+				(uint8_t*) malloc(SisbarcProtocol::TOTAL_BYTES_PROTOCOL)), _serialDataIndex(
 				0x00), _threadIntervals(
 				(uint16_t*) malloc(ArduinoEEPROM::THREAD_INTERVAL_MAX + 1)), _totalThreadIntervals(
-				0x00) {
+				0x00), _serialWrite(NULL) {
 	//printf("New Sisbarc\n");
 }
 
@@ -68,9 +68,7 @@ void SisbarcClass::receiveDataBySerial(ArduinoStatus* const arduino) {
 	}
 }
 
-void SisbarcClass::serialEventRun(void) {
-	uint8_t data = (uint8_t) Serial.read(); //lê os dados da porta serial - Maximo 64 bytes
-
+void SisbarcClass::serialEventRun(uint8_t const data) {
 	if (data & 0x80) { //Last bit
 		*(_serialData) = data;
 		_serialDataIndex = 0x01;
@@ -89,11 +87,17 @@ void SisbarcClass::serialEventRun(void) {
 	}
 }
 
+void SisbarcClass::onRunSerialWrite(void (*serialWrite)(uint8_t* const)) {
+	_serialWrite = serialWrite;
+}
+
 void SisbarcClass::serialWrite(uint8_t* const data) {
 	if (data == NULL)
 		return;
 
-	Serial.write(data, SisbarcProtocol::TOTAL_BYTES_PROTOCOL);
+	//Serial.write(data, SisbarcProtocol::TOTAL_BYTES_PROTOCOL);
+	if (_serialWrite != NULL)
+		_serialWrite(data);
 	free(data);
 }
 
@@ -224,11 +228,8 @@ void SisbarcClass::onRun(pin_type const pinType, uint8_t const pin,
 
 void SisbarcClass::run(void) {
 	ThreadController::run();
-
-	if (Serial.available() > 0) //verifica se existe comunicação com a porta serial
-		serialEventRun();
 }
 
-SisbarcClass Sisbarc;
+//SisbarcClass Sisbarc;
 
 } /* namespace SISBARC */
